@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Summarizer & Sentiment Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="header-section text-center">
+                    <i class="fas fa-brain fa-3x mb-3 text-primary"></i>
+                    <h1 class="display-4">AI News Summarizer</h1>
+                    <p class="lead text-muted">Extract, Summarize, and Analyze News Articles with AI</p>
+                </div>
+
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <form action="/analyze" method="POST" id="analyzeForm">
+                            <div class="mb-4">
+                                <label for="url" class="form-label">
+                                    <i class="fas fa-link"></i> Enter News Article URL
+                                </label>
+                                <input 
+                                    type="url" 
+                                    class="form-control form-control-lg" 
+                                    id="url" 
+                                    name="url" 
+                                    placeholder="https://example.com/news-article" 
+                                    required
+                                >
+                                <div class="form-text">
+                                    Paste the URL of any online news article
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-magic"></i> Analyze Article
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="features-section mt-5">
+                    <h3 class="text-center mb-4">Features</h3>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
+                                <h5>Article Extraction</h5>
+                                <p class="text-muted">Automatically extracts article content from any URL</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-compress-alt fa-2x text-success mb-3"></i>
+                                <h5>AI Summarization</h5>
+                                <p class="text-muted">Uses BART transformer model for intelligent summarization</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-smile fa-2x text-warning mb-3"></i>
+                                <h5>Sentiment Analysis</h5>
+                                <p class="text-muted">Analyzes sentiment using TextBlob and VADER</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-key fa-2x text-info mb-3"></i>
+                                <h5>Keyword Extraction</h5>
+                                <p class="text-muted">Identifies top keywords from the article</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-sort-amount-down fa-2x text-danger mb-3"></i>
+                                <h5>Word Count</h5>
+                                <p class="text-muted">Shows original and summarized word counts</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center">
+                                <i class="fas fa-shield-alt fa-2x text-secondary mb-3"></i>
+                                <h5>Error Handling</h5>
+                                <p class="text-muted">Robust handling of invalid or unreachable URLs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-muted mt-5 py-4">
+        <p>&copy; 2024 AI News Summarizer. Powered by Hugging Face Transformers.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>
