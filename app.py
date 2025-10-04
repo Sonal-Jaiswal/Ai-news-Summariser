@@ -1,17 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 from newspaper import Article
-from transformers import pipeline
 from textblob import TextBlob
 import re
 
 app = Flask(__name__)
 
-# Initialize the summarization pipeline (using BART model)
+# Try to load transformer model, fallback to extractive summarization
+summarizer = None
+use_transformer = False
+
 try:
+    from transformers import pipeline
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    use_transformer = True
+    print("✓ Using BART transformer model for summarization")
 except Exception as e:
-    print(f"Error loading summarization model: {e}")
-    summarizer = None
+    print(f"⚠ Could not load transformer model: {e}")
+    print("⚠ Falling back to extractive summarization")
+    from extractive_summarizer import extractive_summarize
 
 def is_valid_url(url):
     """Validate URL format"""
@@ -40,28 +46,34 @@ def extract_article(url):
         raise Exception(f"Failed to extract article: {str(e)}")
 
 def summarize_text(text):
-    """Summarize text using Hugging Face transformer"""
-    if not summarizer:
-        raise Exception("Summarization model not available")
-    
+    """Summarize text using Hugging Face transformer or extractive method"""
     try:
-        # BART works best with text between 56-1024 tokens
-        # Split long texts into chunks
-        max_chunk_length = 1024
+        # Check minimum length
         words = text.split()
-        
         if len(words) < 56:
             return text  # Text too short to summarize
         
-        # For longer texts, take first chunk
-        if len(words) > max_chunk_length:
-            text = ' '.join(words[:max_chunk_length])
-        
-        # Generate summary
-        summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
-        return summary[0]['summary_text']
+        if use_transformer and summarizer:
+            # Use BART transformer model
+            # BART works best with text between 56-1024 tokens
+            max_chunk_length = 1024
+            
+            # For longer texts, take first chunk
+            if len(words) > max_chunk_length:
+                text = ' '.join(words[:max_chunk_length])
+            
+            # Generate summary
+            summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
+            return summary[0]['summary_text']
+        else:
+            # Use extractive summarization fallback
+            return extractive_summarize(text, num_sentences=3)
     except Exception as e:
-        raise Exception(f"Failed to summarize: {str(e)}")
+        # If transformer fails, try extractive summarization
+        try:
+            return extractive_summarize(text, num_sentences=3)
+        except:
+            raise Exception(f"Failed to summarize: {str(e)}")
 
 def analyze_sentiment(text):
     """Analyze sentiment using TextBlob"""
