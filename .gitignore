@@ -24,13 +24,8 @@ wheels/
 venv/
 env/
 ENV/
-.venv
 
-# Flask
-instance/
-.webassets-cache
-
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp

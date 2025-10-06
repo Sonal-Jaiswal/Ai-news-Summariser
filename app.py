@@ -32,7 +32,6 @@ def extract_article(url):
         article = Article(url)
         article.download()
         article.parse()
-        
         return {
             'title': article.title,
             'text': article.text,
@@ -142,57 +141,44 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    """Process the article URL and return analysis"""
-    url = request.form.get('url', '').strip()
+    """Process the news URL and return analysis"""
+    try:
+        # Get URL from request
+        url = request.form.get('url', '').strip()
+        
+        if not url:
+            return jsonify({'error': 'Please provide a URL'}), 400
+        
+        # Validate URL
+        if not is_valid_url(url):
+            return jsonify({'error': 'Invalid URL format. Please provide a valid http:// or https:// URL'}), 400
+        
+        # Extract article
+        article_data = extract_article(url)
+        
+        if not article_data['text'] or len(article_data['text'].strip()) < 100:
+            return jsonify({'error': 'Could not extract sufficient article text from the URL'}), 400
+        
+        # Summarize article
+        summary = summarize_text(article_data['text'])
+        
+        # Analyze sentiment
+        sentiment_data = analyze_sentiment(article_data['text'])
+        
+        # Return results
+        return jsonify({
+            'success': True,
+            'title': article_data['title'],
+            'summary': summary,
+            'sentiment': sentiment_data['sentiment'],
+            'polarity': sentiment_data['polarity'],
+            'subjectivity': sentiment_data['subjectivity'],
+            'original_length': len(article_data['text'].split()),
+            'summary_length': len(summary.split())
+        })
     
-    if not url:
-        return render_template('result.html', error="Please provide a URL")
-    
-    # Extract article
-    article_data = extract_article(url)
-    
-    if not article_data['success']:
-        log_request(url, False)
-        return render_template('result.html', error=f"Failed to extract article: {article_data['error']}")
-    
-    text = article_data['text']
-    
-    if not text or len(text) < 100:
-        log_request(url, False)
-        return render_template('result.html', error="Article text is too short or empty")
-    
-    # Count words
-    original_word_count = len(text.split())
-    
-    # Summarize text
-    summary = summarize_text(text)
-    summary_word_count = len(summary.split())
-    
-    # Analyze sentiment using both TextBlob and VADER
-    sentiment_textblob = analyze_sentiment_textblob(summary)
-    sentiment_vader = analyze_sentiment_vader(summary)
-    
-    # Extract keywords
-    keywords = extract_keywords(text)
-    
-    # Log successful request
-    log_request(url, True)
-    
-    # Prepare result data
-    result = {
-        'title': article_data['title'],
-        'authors': ', '.join(article_data['authors']) if article_data['authors'] else 'Unknown',
-        'publish_date': article_data['publish_date'].strftime('%Y-%m-%d') if article_data['publish_date'] else 'Unknown',
-        'original_word_count': original_word_count,
-        'summary': summary,
-        'summary_word_count': summary_word_count,
-        'sentiment_textblob': sentiment_textblob,
-        'sentiment_vader': sentiment_vader,
-        'keywords': keywords,
-        'url': url
-    }
-    
-    return render_template('result.html', result=result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
