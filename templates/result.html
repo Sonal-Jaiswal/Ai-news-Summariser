@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - AI News Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="header-section text-center">
+                    <h1 class="display-5">
+                        <i class="fas fa-chart-line"></i> Analysis Results
+                    </h1>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> <strong>Error:</strong> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Try Another Article
+                    </a>
+                </div>
+                {% else %}
+                
+                <!-- Article Information -->
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-newspaper"></i> Article Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ result.title }}</h3>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-user"></i> Authors:</strong> {{ result.authors }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-calendar"></i> Published:</strong> {{ result.publish_date }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong><i class="fas fa-link"></i> Source:</strong> 
+                                    <a href="{{ result.url }}" target="_blank" class="text-decoration-none">View Original</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-compress-alt"></i> AI-Generated Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">{{ result.summary }}</p>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="stat-box">
+                                    <i class="fas fa-file-alt fa-2x text-primary"></i>
+                                    <h5>Original Word Count</h5>
+                                    <h2 class="text-primary">{{ result.original_word_count }}</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-box">
+                                    <i class="fas fa-compress fa-2x text-success"></i>
+                                    <h5>Summary Word Count</h5>
+                                    <h2 class="text-success">{{ result.summary_word_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Compression Ratio:</strong> 
+                            {{ "%.1f"|format((result.summary_word_count / result.original_word_count * 100)) }}% of original length
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sentiment Analysis Section -->
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="fas fa-smile"></i> Sentiment Analysis</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- TextBlob Sentiment -->
+                            <div class="col-md-6">
+                                <div class="sentiment-card">
+                                    <h5><i class="fas fa-brain"></i> TextBlob Analysis</h5>
+                                    <div class="sentiment-badge sentiment-{{ result.sentiment_textblob.sentiment.lower() }}">
+                                        {% if result.sentiment_textblob.sentiment == 'Positive' %}
+                                            <i class="fas fa-smile"></i>
+                                        {% elif result.sentiment_textblob.sentiment == 'Negative' %}
+                                            <i class="fas fa-frown"></i>
+                                        {% else %}
+                                            <i class="fas fa-meh"></i>
+                                        {% endif %}
+                                        {{ result.sentiment_textblob.sentiment }}
+                                    </div>
+                                    <div class="mt-3">
+                                        <p><strong>Polarity:</strong> {{ "%.3f"|format(result.sentiment_textblob.polarity) }}</p>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-info" role="progressbar" 
+                                                 style="width: {{ ((result.sentiment_textblob.polarity + 1) / 2 * 100)|int }}%">
+                                            </div>
+                                        </div>
+                                        <p><strong>Subjectivity:</strong> {{ "%.3f"|format(result.sentiment_textblob.subjectivity) }}</p>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-secondary" role="progressbar" 
+                                                 style="width: {{ (result.sentiment_textblob.subjectivity * 100)|int }}%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VADER Sentiment -->
+                            <div class="col-md-6">
+                                <div class="sentiment-card">
+                                    <h5><i class="fas fa-chart-bar"></i> VADER Analysis</h5>
+                                    <div class="sentiment-badge sentiment-{{ result.sentiment_vader.sentiment.lower() }}">
+                                        {% if result.sentiment_vader.sentiment == 'Positive' %}
+                                            <i class="fas fa-smile"></i>
+                                        {% elif result.sentiment_vader.sentiment == 'Negative' %}
+                                            <i class="fas fa-frown"></i>
+                                        {% else %}
+                                            <i class="fas fa-meh"></i>
+                                        {% endif %}
+                                        {{ result.sentiment_vader.sentiment }}
+                                    </div>
+                                    <div class="mt-3">
+                                        <p><strong>Compound Score:</strong> {{ "%.3f"|format(result.sentiment_vader.compound) }}</p>
+                                        <p><strong>Positive:</strong> {{ "%.1f"|format(result.sentiment_vader.pos * 100) }}%</p>
+                                        <p><strong>Neutral:</strong> {{ "%.1f"|format(result.sentiment_vader.neu * 100) }}%</p>
+                                        <p><strong>Negative:</strong> {{ "%.1f"|format(result.sentiment_vader.neg * 100) }}%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keywords Section -->
+                {% if result.keywords %}
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0"><i class="fas fa-key"></i> Extracted Keywords</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="keywords-container">
+                            {% for keyword in result.keywords %}
+                            <span class="keyword-badge">{{ keyword }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="text-center mt-4 mb-5">
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Analyze Another Article
+                    </a>
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-muted mt-5 py-4">
+        <p>&copy; 2024 AI News Summarizer. Powered by Hugging Face Transformers.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

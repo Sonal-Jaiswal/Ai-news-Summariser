@@ -1,24 +1,26 @@
-# AI News Summarizer 🤖📰
+# 🧠 AI News Summarizer and Sentiment Analyzer
 
-A Python Flask web application that extracts news articles from URLs, generates summaries using Hugging Face transformers (BART), and performs sentiment analysis using TextBlob.
+A Python Flask web application that extracts, summarizes, and analyzes news articles using AI-powered natural language processing.
 
-## Features
+## ✨ Features
 
-- 📰 **Article Extraction**: Uses newspaper3k to extract article text from any news URL
-- 📝 **AI Summarization**: Leverages Facebook's BART model for high-quality text summarization
-- 😊 **Sentiment Analysis**: Analyzes article sentiment (Positive, Negative, Neutral) with TextBlob
-- 🎨 **Beautiful UI**: Clean, modern web interface with gradient design
-- ⚠️ **Error Handling**: Gracefully handles invalid URLs and extraction errors
-- 📊 **Analytics**: Shows polarity, subjectivity, and compression ratio
+- **Article Extraction**: Automatically extracts article content from any URL using newspaper3k
+- **AI-Powered Summarization**: Uses Hugging Face's BART transformer model for intelligent text summarization
+- **Dual Sentiment Analysis**: Analyzes sentiment using both TextBlob and VADER for comprehensive insights
+- **Keyword Extraction**: Identifies the most important keywords from articles
+- **Word Count Comparison**: Shows original and summarized word counts with compression ratio
+- **Responsive UI**: Modern, mobile-friendly interface built with Bootstrap
+- **Error Handling**: Robust handling of invalid or unreachable URLs
+- **Request Logging**: Logs all user requests for analytics
 
-## Installation
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package manager)
 
-### Setup
+### Installation
 
 1. Clone the repository:
 ```bash
@@ -37,12 +39,12 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Download required NLTK data for TextBlob (one-time setup):
-```bash
+4. Download required NLTK data for TextBlob (run in Python):
+```python
 python -c "import nltk; nltk.download('brown'); nltk.download('punkt')"
 ```
 
-## Usage
+### Running the Application
 
 1. Start the Flask application:
 ```bash
