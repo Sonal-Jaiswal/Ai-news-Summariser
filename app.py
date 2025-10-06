@@ -26,6 +26,22 @@ def get_summarizer():
         summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     return summarizer
 
+def is_valid_url(url):
+    """Validate URL format"""
+    import re
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return url_pattern.match(url) is not None
+
+def analyze_sentiment(text):
+    """Analyze sentiment using TextBlob"""
+    return analyze_sentiment_textblob(text)
+
 def extract_article(url):
     """Extract article content from URL using newspaper3k"""
     try:
