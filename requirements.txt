@@ -4,3 +4,4 @@ textblob>=0.17.1
 transformers>=4.35.0
 torch>=2.0.0
 sentencepiece>=0.1.99
+vaderSentiment>=3.3.2
